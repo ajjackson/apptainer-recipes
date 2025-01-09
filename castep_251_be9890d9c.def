@@ -1,0 +1,30 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%arguments
+  TARBALL=/home/prg49555/src/castep-251-be9890d9c.tar.gz
+
+%files
+  {{ TARBALL }} /opt
+
+%post -c /bin/bash
+  apt update && apt install -yq gfortran cmake libopenmpi-dev libopenblas-dev libfftw3-dev
+  apt install -yq python-is-python3 python3-setuptools python3-distutils
+  apt clean
+
+  cd /root
+  mkdir castep-source && cd castep-source
+  tar -xf /opt/$(basename {{ TARBALL }})
+
+  MAKE_ARGS="INSTALL_DIR=/usr/bin FFT=fftw3 MATHLIBS=openblas BUILD=debug TARGETCPU=host LIBXC=compile GRIMMED3=compile GRIMMED4=compile"
+
+  for COMMS_ARCH in serial mpi
+  do
+    make -j COMMS_ARCH=${COMMS_ARCH} ${MAKE_ARGS}
+    make install COMMS_ARCH=${COMMS_ARCH} INSTALL_DIR=/usr/bin
+  done
+
+  # Clean up: we don't need the source any more
+  cd /root
+  rm -rf castep-source
+  rm /opt/*.tar.gz
