@@ -2,7 +2,7 @@ Bootstrap: docker
 From: ubuntu:22.04
 
 %arguments
-  TARBALL=/home/prg49555/Downloads/castep-25_1_1.tar.gz
+  TARBALL=./castep-25_1_2.tar.gz
   EXTRA_MAKE_ARGS="OPT_CPU='-march=native'"
 
 %files
@@ -22,7 +22,7 @@ From: ubuntu:22.04
   for COMMS_ARCH in serial mpi
   do
     make -j COMMS_ARCH=${COMMS_ARCH} ${MAKE_ARGS}
-    make install COMMS_ARCH=${COMMS_ARCH} INSTALL_DIR=/usr/bin
+    make install COMMS_ARCH=${COMMS_ARCH} INSTALL_DIR=/usr/bin ${MAKE_ARGS}
   done
 
   # Clean up: we don't need the source any more
